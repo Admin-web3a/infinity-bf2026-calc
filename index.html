@@ -256,7 +256,8 @@ function render() {
 
   const sp = mode === 'ladder' ? Math.max(...P.ladder) : P.pS;
   const rowsBE = [];
-  if (sp !== 290) rowsBE.push(beRow('Студенты', 290, sp, P));
+  if (mode === 'ladder') rowsBE.push(ladderBE(P));
+  else if (sp !== 290) rowsBE.push(beRow('Студенты', 290, sp, P));
   if (P.pE !== 380) rowsBE.push(beRow('Внешние', 380, P.pE, P));
   $('breakeven').innerHTML = rowsBE.length
     ? rowsBE.join('')
@@ -270,6 +271,19 @@ function beRow(name, p0, p1, P) {
   const verb = p1 > p0 ? 'можно потерять не больше' : 'нужно получить больше покупок минимум на';
   const rv = p1 > p0 ? r : (p0 / p1 - 1), mv = p1 > p0 ? m : (net(p0, P) / net(p1, P) - 1);
   return `<p><b>${name}: ${p1} вместо ${p0}</b> — ${verb} <b>${fmt(Math.abs(rv) * 100, 0)}%</b> покупок по выручке и <b>${fmt(Math.abs(mv) * 100, 0)}%</b> по марже.</p>`;
+}
+
+function ladderBE(P) {
+  const base = flat(P.stud, 290, P.eS, P);
+  const at = L => ladder(P.stud, P.ladder, P.eS, { ...P, loss: L });
+  const find = key => {
+    if (at(0)[key] < base[key]) return null;
+    for (let L = 0; L <= 1.0001; L += 0.01) if (at(L)[key] < base[key]) return L;
+    return 1;
+  };
+  const r = find('r'), m = find('m');
+  const txt = x => x === null ? 'проигрывает даже без ушедших' : x >= 1 ? 'выигрывает при любой доле ушедших' : `выигрывает, пока уходит меньше <b>${fmt(x * 100, 0)}%</b>`;
+  return `<p><b>Лестница против ровных 290</b> (при текущей доле торгующихся ${Math.round(P.hag * 100)}%): по выручке ${txt(r)}, по марже ${txt(m)} тех, кому назвали высокую первую цену.</p>`;
 }
 
 function drawChart(P) {
