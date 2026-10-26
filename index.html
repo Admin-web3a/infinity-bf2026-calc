@@ -112,13 +112,6 @@
         </div>
       </div>
 
-      <div class="card">
-        <h2>Расходы на продажу</h2>
-        <div class="seg"><span>Эквайринг, %</span><input type="number" id="cFee" step="0.5" value="3"><span></span></div>
-        <div class="seg"><span>Налоги, %</span><input type="number" id="cTax" step="0.5" value="6"><span></span></div>
-        <div class="seg"><span>Комиссия ОП, %</span><input type="number" id="cSales" step="0.5" value="7"><span></span></div>
-        <div class="seg"><span>Переменные выплаты за продажу, тыс. ₽</span><input type="number" id="cVar" step="1" value="25"><span></span></div>
-      </div>
     </div>
 
     <div>
@@ -127,7 +120,7 @@
         <div class="kpis">
           <div class="kpi"><div class="l">Покупок</div><div class="v" id="kN"></div><div class="d" id="dN"></div></div>
           <div class="kpi"><div class="l">Выручка, млн ₽</div><div class="v" id="kR"></div><div class="d" id="dR"></div></div>
-          <div class="kpi"><div class="l">Маржа после расходов, млн ₽</div><div class="v" id="kM"></div><div class="d" id="dM"></div></div>
+          <div class="kpi"><div class="l">Маржа после расходов, млн ₽<br>без учёта ФОТ и рекламных расходов</div><div class="v" id="kM"></div><div class="d" id="dM"></div></div>
         </div>
         <div class="note">Сравнение — с вариантом из Миро: 290 для студентов, 380 для внешних.</div>
         <div class="warn" id="warn"></div>
@@ -194,11 +187,11 @@ function params() {
     pS: v('pStud'), pE: v('pExt'),
     ladder: [v('pL1'), v('pL2'), v('pL3')],
     hag: v('hag') / 100, loss: v('loss') / 100,
-    fee: v('cFee') / 100, tax: v('cTax') / 100, sales: v('cSales') / 100, vc: v('cVar'),
   };
 }
 const curve = (segs, p, e) => segs.reduce((s, g) => s + (g.ref > 0 ? g.n * Math.pow(p / g.ref, -e) : 0), 0);
-const net = (p, P) => p * (1 - P.fee - P.tax - P.sales) - P.vc;
+const COST_PCT = 0.16, COST_PER_SALE = 25;
+const net = p => p * (1 - COST_PCT) - COST_PER_SALE;
 
 function flat(segs, p, e, P) {
   const n = curve(segs, p, e);
