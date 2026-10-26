@@ -116,6 +116,7 @@
         <h2>Расходы на продажу</h2>
         <div class="seg"><span>Эквайринг, %</span><input type="number" id="cFee" step="0.5" value="3"><span></span></div>
         <div class="seg"><span>Налоги, %</span><input type="number" id="cTax" step="0.5" value="6"><span></span></div>
+        <div class="seg"><span>Комиссия ОП, %</span><input type="number" id="cSales" step="0.5" value="7"><span></span></div>
         <div class="seg"><span>Переменные выплаты за продажу, тыс. ₽</span><input type="number" id="cVar" step="1" value="25"><span></span></div>
       </div>
     </div>
@@ -193,11 +194,11 @@ function params() {
     pS: v('pStud'), pE: v('pExt'),
     ladder: [v('pL1'), v('pL2'), v('pL3')],
     hag: v('hag') / 100, loss: v('loss') / 100,
-    fee: v('cFee') / 100, tax: v('cTax') / 100, vc: v('cVar'),
+    fee: v('cFee') / 100, tax: v('cTax') / 100, sales: v('cSales') / 100, vc: v('cVar'),
   };
 }
 const curve = (segs, p, e) => segs.reduce((s, g) => s + (g.ref > 0 ? g.n * Math.pow(p / g.ref, -e) : 0), 0);
-const net = (p, P) => p * (1 - P.fee - P.tax) - P.vc;
+const net = (p, P) => p * (1 - P.fee - P.tax - P.sales) - P.vc;
 
 function flat(segs, p, e, P) {
   const n = curve(segs, p, e);
